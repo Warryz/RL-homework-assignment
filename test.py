@@ -32,7 +32,7 @@ for replay_id, json_data in replay_id_dict.items():
 
     # Make the first request.
     r = requests.get(api_url, headers=header)
-    json_data = r.text
+    json_data = json.loads(r.text)
 
     # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
     sleep(0.1)
