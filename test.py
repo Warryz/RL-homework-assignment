@@ -12,10 +12,10 @@ with open('beispiel_list.json') as file:
 
         replay_id_dict[x['id']] = ''
 
-    # Output the game id
-    # print(data['id'])
-    print(replay_id_dict)
 
+# Go through the dictionary and download the replay data.
+for x, y in replay_id_dict.items():
+    pass
 
 ranks = [['unranked', 'unranked'],
          ['bronze-1', 'bronze-3'],
