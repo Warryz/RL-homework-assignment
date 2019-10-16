@@ -1,0 +1,8 @@
+# Directorys
+venv/
+.vscode/
+
+# Files
+*.db
+*.pyc
+*.json
