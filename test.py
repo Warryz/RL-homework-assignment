@@ -37,8 +37,9 @@ for replay_id, json_data in replay_id_dict.items():
     # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
     sleep(0.1)
 
-    # Close the database connection.
-    conn.close()
+
+# Close the database connection AFTER finished the loop.
+conn.close()
 
 ranks = [['unranked', 'unranked'],
          ['bronze-1', 'bronze-3'],
