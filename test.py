@@ -19,6 +19,10 @@ with open('beispiel_list.json') as file:
 # Authorization Header
 header = {'Authorization': 'abc123'}
 
+# Create a database connection and a cursor for executing commands.
+conn = sqlite3.connect('rl.db')
+c = conn.cursor()
+
 # Go through the dictionary and download the replay data.
 for replay_id, json_data in replay_id_dict.items():
     # Example: https://ballchasing.com/replay/7509cebd-e78e-4214-b92f-024fd39171f5
@@ -32,6 +36,9 @@ for replay_id, json_data in replay_id_dict.items():
 
     # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
     sleep(0.1)
+
+    # Close the database connection.
+    conn.close()
 
 ranks = [['unranked', 'unranked'],
          ['bronze-1', 'bronze-3'],
