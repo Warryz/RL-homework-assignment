@@ -1,6 +1,7 @@
 import json
 import sqlite3
 from time import sleep
+from functions import get_player_name_and_id
 
 import requests
 
@@ -52,22 +53,29 @@ for replay_id, json_data in replay_id_dict.items():
     # Basic variables like mapname, status, playlist id, duration, season
     # min and max rank
     map_name = json_data['map_name']
-    status = json_data['Statzs']
+    status = json_data['status']
     playlist_id = json_data['playlist_id']
     duration = json_data['duration']
     season = json_data['season']
     min_rank = json_data['min_rank']['name']
     max_rank = json_data['max_rank']['name']
 
-    sql_insert_satement.append((
-        json_data['blue']['players']
-    ))
+    # Extract the players from the data
+    players = get_player_name_and_id(json_data['blue'], json_data['orange'])
+
+    try:
+        c.executemany(
+            'insert into Players (player_id, player_name) Values (?, ?)', players)
+
+    except sqlite3.Error as error:
+        print("Failed to insert data:", error)
 
     # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
     sleep(0.1)
 
 
-# Close the database connection AFTER finished the loop.
+# Commit the new data and close the database connection AFTER finished the loop.
+conn.commit()
 conn.close()
 
 ranks = [['unranked', 'unranked'],
