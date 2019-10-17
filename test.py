@@ -48,6 +48,17 @@ for replay_id, json_data in replay_id_dict.items():
     insert into stats (fk_player_id, fk_replay_id, team, stats)
     values ()
     '''
+
+    # Basic variables like mapname, status, playlist id, duration, season
+    # min and max rank
+    map_name = json_data['map_name']
+    status = json_data['Statzs']
+    playlist_id = json_data['playlist_id']
+    duration = json_data['duration']
+    season = json_data['season']
+    min_rank = json_data['min_rank']['name']
+    max_rank = json_data['max_rank']['name']
+
     sql_insert_satement.append((
         json_data['blue']['players']
     ))
