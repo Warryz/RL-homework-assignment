@@ -23,6 +23,9 @@ header = {'Authorization': 'abc123'}
 conn = sqlite3.connect('rl.db')
 c = conn.cursor()
 
+# List of SQL statements to import the data
+sql_insert_satement = list()
+
 # Go through the dictionary and download the replay data.
 for replay_id, json_data in replay_id_dict.items():
     # Example: https://ballchasing.com/replay/7509cebd-e78e-4214-b92f-024fd39171f5
@@ -33,6 +36,21 @@ for replay_id, json_data in replay_id_dict.items():
     # Make the first request.
     r = requests.get(api_url, headers=header)
     json_data = json.loads(r.text)
+
+    # SQL Statements
+    '''
+    INSERT into Players (player_id, player_name)
+    VALUES ('0123', 'tester1');
+    
+    insert into replays (replay_id, map, status, playlist_id, duration, season, min_rank, max_rank)
+    values ()
+
+    insert into stats (fk_player_id, fk_replay_id, team, stats)
+    values ()
+    '''
+    sql_insert_satement.append((
+        json_data['blue']['players']
+    ))
 
     # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
     sleep(0.1)
