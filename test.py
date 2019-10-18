@@ -69,6 +69,13 @@ for replay_id, json_data in replay_id_dict.items():
 
     except sqlite3.Error as error:
         print("Failed to insert data:", error)
+    try:
+        # Try to insert replay data
+        c.execute(
+            'insert into replays (replay_id, map, status, playlist_id, duration, season, min_rank, max_rank) values (?, ?, ?, ?, ?, ?, ?, ?)', (replay_id, map_name, status, playlist_id, duration, season, min_rank, max_rank))
+
+    except sqlite3.Error as error:
+        print("Failed to insert replay data:", error)
 
     # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
     sleep(0.1)
