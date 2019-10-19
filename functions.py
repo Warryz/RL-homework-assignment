@@ -23,21 +23,23 @@ def get_player_stats(replay_id, blue_team, orange_team):
     player_stats_list = list()
     # fk_player_id, fk_replay_id, team, stats
     # Add blue players
-    for player in blue_team:
+    for player in blue_team['players']:
         player_stats_list.append(
-            (player['id']['id'], replay_id, 'Blue', player['stats'])
+            (player['id']['id'], replay_id,
+             blue_team['color'], str(player['stats']))
         )
 
     # Add orange players
-    for player in orange_team:
+    for player in orange_team['players']:
         player_stats_list.append(
-            (player['id']['id'], replay_id, 'Orange', player['stats'])
+            (player['id']['id'], replay_id,
+             orange_team['color'], str(player['stats']))
         )
     return player_stats_list
 
 
 def get_team_stats(team):
-    return team['stats']
+    return str(team['stats'])
 
 
 if __name__ == "__main__":
