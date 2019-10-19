@@ -23,6 +23,7 @@ if __name__ == "__main__":
 	"season"	INTEGER,
 	"min_rank"	TEXT,
 	"max_rank"	TEXT,
+	"team_stats"	TEXT,
 	PRIMARY KEY("replay_id"));
 
     CREATE TABLE "Stats" (
