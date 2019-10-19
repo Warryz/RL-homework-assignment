@@ -77,6 +77,11 @@ for replay_id, json_data in replay_id_dict.items():
     except sqlite3.Error as error:
         print("Failed to insert replay data:", error)
 
+    try:
+        c.execute('insert into stats (fk_player_id, fk_replay_id, team, stats) values (?, ?, ?, ?)', ())
+    except sqlite3.Error as error:
+        print("Failed to insert replay data:", error)
+
     # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
     sleep(0.1)
 
