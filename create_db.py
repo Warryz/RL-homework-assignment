@@ -29,7 +29,7 @@ if __name__ == "__main__":
 	"fk_player_id"	TEXT,
 	"fk_replay_id"	TEXT,
 	"team"	INTEGER,
-	"Stats"	BLOB,
+	"Stats"	TEXT,
 	FOREIGN KEY("fk_player_id") REFERENCES "Players"("player_id"),
 	PRIMARY KEY("fk_player_id","fk_replay_id"),
 	FOREIGN KEY("fk_replay_id") REFERENCES "Replays"("replay_id"));  
