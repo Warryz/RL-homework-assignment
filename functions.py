@@ -18,20 +18,20 @@ def get_player_name_and_id(blue_team, orange_team):
     return player_name_id_list
 
 
-def get_player_stats(blue_team, orange_team):
+def get_player_stats(replay_id, blue_team, orange_team):
     'Gets the player stats and returns them as a list'
     player_stats_list = list()
-
+    # fk_player_id, fk_replay_id, team, stats
     # Add blue players
     for player in blue_team:
         player_stats_list.append(
-            {player['id']['id']: player['stats']}
+            (player['id']['id'], replay_id, 'Blue', player['stats'])
         )
 
     # Add orange players
     for player in orange_team:
         player_stats_list.append(
-            {player['id']['id']: player['stats']}
+            (player['id']['id'], replay_id, 'Orange', player['stats'])
         )
     return player_stats_list
 
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     team_stats_orange = get_team_stats(data['orange'])
 
     # Get the player specific stats
-    player_stats = get_player_stats(
-        data['blue']['players'], data['orange']['players'])
+    player_stats = get_player_stats('7509cebd-e78e-4214-b92f-024fd39171f5',
+                                    data['blue']['players'], data['orange']['players'])
 
     print(player_stats)
