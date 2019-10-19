@@ -68,7 +68,7 @@ for replay_id, json_data in replay_id_dict.items():
             'insert into Players (player_id, player_name) Values (?, ?)', players)
 
     except sqlite3.Error as error:
-        print("Failed to insert data:", error)
+        print("Failed to insert player data:", error)
     try:
         # Try to insert replay data
         c.execute(
