@@ -1,7 +1,7 @@
 import json
 import sqlite3
 from time import sleep
-from functions import get_player_name_and_id
+from functions import get_player_name_and_id, get_team_stats, get_player_stats
 
 import requests
 
@@ -60,8 +60,15 @@ for replay_id, json_data in replay_id_dict.items():
     min_rank = json_data['min_rank']['name']
     max_rank = json_data['max_rank']['name']
 
+    # Get the team stats
+    team_stats_blue = get_team_stats(json_data['blue'])
+    team_stats_orange = get_team_stats(json_data['orange'])
+
     # Extract the players from the data
     players = get_player_name_and_id(json_data['blue'], json_data['orange'])
+
+    player_stats = get_player_stats(
+        replay_id, json_data['blue'], json_data['orange'])
 
     try:
         c.executemany(
@@ -72,15 +79,16 @@ for replay_id, json_data in replay_id_dict.items():
     try:
         # Try to insert replay data
         c.execute(
-            'insert into replays (replay_id, map, status, playlist_id, duration, season, min_rank, max_rank) values (?, ?, ?, ?, ?, ?, ?, ?)', (replay_id, map_name, status, playlist_id, duration, season, min_rank, max_rank))
+            'insert into replays (replay_id, map, status, playlist_id, duration, season, min_rank, max_rank, team_stats_orange, team_stats_blue) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (replay_id, map_name, status, playlist_id, duration, season, min_rank, max_rank, team_stats_orange, team_stats_blue))
 
     except sqlite3.Error as error:
         print("Failed to insert replay data:", error)
 
     try:
-        c.execute('insert into stats (fk_player_id, fk_replay_id, team, stats) values (?, ?, ?, ?)', ())
+        c.executemany(
+            'insert into stats (fk_player_id, fk_replay_id, team, stats) values (?, ?, ?, ?)', player_stats)
     except sqlite3.Error as error:
-        print("Failed to insert replay data:", error)
+        print("Failed to insert player stats data:", error)
 
     # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
     sleep(0.1)
