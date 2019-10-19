@@ -141,22 +141,3 @@ else:
 # Close the database connection
 conn.commit()
 conn.close()
-
-
-'''
-with open('beispiel.json') as file:
-    data = json.load(file)
-
-    for x in data['blue']['players']:
-        # Create new player objects
-        players.append(Player(x['name'], x['id']['id']))
-
-    for x in data['orange']['players']:
-        # Create new player objects
-        players.append(Player(x['name'], x['id']['id']))
-
-    # Output the game id
-    print(data['id'])
-for x in players:
-    print(x)
-'''
