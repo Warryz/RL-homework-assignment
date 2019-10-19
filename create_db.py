@@ -30,7 +30,7 @@ if __name__ == "__main__":
     CREATE TABLE "Stats" (
 	"fk_player_id"	TEXT,
 	"fk_replay_id"	TEXT,
-	"team"	INTEGER,
+	"team"	TEXT,
 	"Stats"	TEXT,
 	FOREIGN KEY("fk_player_id") REFERENCES "Players"("player_id"),
 	PRIMARY KEY("fk_player_id","fk_replay_id"),
