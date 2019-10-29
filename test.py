@@ -1,9 +1,9 @@
 import json
 import sqlite3
+import time
 from datetime import datetime
 from queue import Queue
 from threading import Thread
-import time
 
 import requests
 
@@ -66,23 +66,20 @@ def downloadEnclosures(i, q):
                 'insert into Players (player_id, player_name) Values (?, ?)', players)
 
         except sqlite3.Error as error:
-            pass
-            # print("Failed to insert player data:", error)
+            print("Failed to insert player data:", error)
         try:
             # Try to insert replay data
             c.execute(
                 'insert into replays (replay_id, map, status, playlist_id, duration, season, min_rank, max_rank, team_stats_orange, team_stats_blue) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (replay, map_name, status, playlist_id, duration, season, min_rank, max_rank, team_stats_orange, team_stats_blue))
 
         except sqlite3.Error as error:
-            pass
-            # print("Failed to insert replay data:", error)
+            print("Failed to insert replay data:", error)
 
         try:
             c.executemany(
                 'insert into stats (fk_player_id, fk_replay_id, team, stats) values (?, ?, ?, ?)', player_stats)
         except sqlite3.Error as error:
-            pass
-            # print("Failed to insert player stats data:", error)
+            print("Failed to insert player stats data:", error)
 
         # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
         query_end = datetime.now()
@@ -110,10 +107,6 @@ with open('beispiel_list.json') as file:
 # Create a database connection and a cursor for executing commands.
 conn = sqlite3.connect('rl.db')
 c = conn.cursor()
-
-# List of SQL statements to import the data
-sql_insert_satement = list()
-
 
 # Now wait for the queue to be empty, indicating that we have
 # processed all of the downloads.
