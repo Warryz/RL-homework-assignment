@@ -64,7 +64,11 @@ def download_replays(i, q, header, c):
 
         # Make the first request.
         r = requests.get(api_url, headers=header)
-        json_data = json.loads(r.text)
+        try:
+            json_data = json.loads(r.text)
+        except ValueError as json_err:
+            print(
+                f'Json decoding error when decoding replay {replay}: {json_err}')
 
         # Basic variables like mapname, status, playlist id, duration, season
         # min and max rank
