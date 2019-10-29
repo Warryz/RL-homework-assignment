@@ -105,7 +105,7 @@ with open('beispiel_list.json') as file:
 
 
 # Create a database connection and a cursor for executing commands.
-conn = sqlite3.connect('rl.db')
+conn = sqlite3.connect('rl.db', check_same_thread=False)
 c = conn.cursor()
 
 # Now wait for the queue to be empty, indicating that we have
