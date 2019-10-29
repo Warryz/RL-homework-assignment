@@ -1,6 +1,7 @@
 # import requests
 import json
 import sqlite3
+from datetime import datetime
 from time import sleep
 
 import requests
@@ -37,6 +38,9 @@ api_url = 'https://ballchasing.com/api/'
 # Authorization Header
 # ADD the API key here!
 header = {'Authorization': 'abc123'}
+
+# Start the time measurement here
+start = datetime.now()
 
 # Create a database connection and a cursor for executing commands.
 conn = sqlite3.connect('rl.db')
@@ -149,3 +153,9 @@ else:
 # Close the database connection
 conn.commit()
 conn.close()
+
+# Time of End
+end = datetime.now()
+
+# Print notification when script has finished
+print(f'Script has finished! Time: {end-start}')
