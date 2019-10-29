@@ -20,6 +20,12 @@ ranks = [['unranked', 'unranked'],
          ['champion-1', 'champion-3'],
          ['grand-champion', 'grand-champion']]
 
+# Number of games to download
+number_of_games = 20
+
+# Season of the data to get
+season_of_games = 12
+
 # List of all interesting game mods
 game_modes = ['ranked-duels', 'ranked-doubles', 'ranked-standard']
 
@@ -51,7 +57,7 @@ if(r.status_code == 200):
         for rank in ranks:
 
             # Construct an url for download the replay list for a mode and a rank
-            rank_mode_url = f'{replay_list_url}?playlist={mode}&min-rank={rank[0]}&max-rank={rank[1]}&count=20'
+            rank_mode_url = f'{replay_list_url}?playlist={mode}&min-rank={rank[0]}&max-rank={rank[1]}&count={number_of_games}&season={season_of_games}'
 
             replay_data.append(json.loads(requests.get(
                 rank_mode_url, headers=header).text))
