@@ -52,7 +52,7 @@ r = requests.get(api_url, headers=header)
 if(r.status_code == 200):
 
     replay_list_url = 'https://ballchasing.com/api/replays'
-    replay_id_dict = dict()
+    replay_id_list = list()
 
     # Download the List of Replays
 
@@ -70,15 +70,17 @@ if(r.status_code == 200):
     for x in replay_data:
         for y in x['list']:
             # Construct the replay URL and print it, yeah!
-            replay_id_dict[y['id']] = ''
+            replay_id_list.append(y['id'])
 
-    for replay_id, json_data in replay_id_dict.items():
+    for replay_id in replay_id_list:
+        json_data = ''
         # Example: https://ballchasing.com/replay/7509cebd-e78e-4214-b92f-024fd39171f5
 
         # API URL for making requests
         api_url = f'https://ballchasing.com/api/replays/{replay_id}'
 
         # Make the first request.
+        query_start = datetime.now()
         r = requests.get(api_url, headers=header)
         if r.status_code == 200:
             json_data = json.loads(r.text)
@@ -141,8 +143,9 @@ if(r.status_code == 200):
             except sqlite3.Error as error:
                 print("Failed to insert player stats data:", error)
 
-            # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
-            sleep(0.1)
+            # Log the query time.
+            query_end = datetime.now()
+            print(f'{query_end-query_start}, {r.status_code}')
 
         else:
             print(
