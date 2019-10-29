@@ -51,7 +51,7 @@ if(r.status_code == 200):
         for rank in ranks:
 
             # Construct an url for download the replay list for a mode and a rank
-            rank_mode_url = f'{replay_list_url}?playlist={mode}&min-rank={rank[0]}&max-rank={rank[1]}&count=10'
+            rank_mode_url = f'{replay_list_url}?playlist={mode}&min-rank={rank[0]}&max-rank={rank[1]}&count=20'
 
             replay_data.append(json.loads(requests.get(
                 rank_mode_url, headers=header).text))
@@ -70,71 +70,73 @@ if(r.status_code == 200):
 
         # Make the first request.
         r = requests.get(api_url, headers=header)
-        json_data = json.loads(r.text)
+        if r.status_code == 200:
+            json_data = json.loads(r.text)
 
-        # SQL Statements
-        '''
-        INSERT into Players (player_id, player_name)
-        VALUES ('0123', 'tester1');
-        
-        insert into replays (replay_id, map, status, playlist_id, duration, season, min_rank, max_rank)
-        values ()
+            # SQL Statements
+            '''
+            INSERT into Players (player_id, player_name)
+            VALUES ('0123', 'tester1');
+            
+            insert into replays (replay_id, map, status, playlist_id, duration, season, min_rank, max_rank)
+            values ()
 
-        insert into stats (fk_player_id, fk_replay_id, team, stats)
-        values ()
-        '''
+            insert into stats (fk_player_id, fk_replay_id, team, stats)
+            values ()
+            '''
 
-        # Basic variables like mapname, status, playlist id, duration, season
-        # min and max rank
-        try:
-            map_name = json_data['map_name']
-            status = json_data['status']
-            playlist_id = json_data['playlist_id']
-            duration = json_data['duration']
-            season = json_data['season']
-            min_rank = json_data['min_rank']['name']
-            max_rank = json_data['max_rank']['name']
+            # Basic variables like mapname, status, playlist id, duration, season
+            # min and max rank
+            try:
+                map_name = json_data['map_name']
+                status = json_data['status']
+                playlist_id = json_data['playlist_id']
+                duration = json_data['duration']
+                season = json_data['season']
+                min_rank = json_data['min_rank']['name']
+                max_rank = json_data['max_rank']['name']
 
-        except KeyError as err:
+            except KeyError as err:
+                print(
+                    f'Could not find key {err} in json_data, replay_id: {replay_id}')
+
+            # Get the team stats
+            team_stats_blue = get_team_stats(json_data['blue'])
+            team_stats_orange = get_team_stats(json_data['orange'])
+
+            # Extract the players from the data
+            players = get_player_name_and_id(
+                json_data['blue'], json_data['orange'])
+
+            player_stats = get_player_stats(
+                replay_id, json_data['blue'], json_data['orange'])
+
+            try:
+                c.executemany(
+                    'insert into Players (player_id, player_name) Values (?, ?)', players)
+
+            except sqlite3.Error as error:
+                print("Failed to insert player data:", error)
+            try:
+                # Try to insert replay data
+                c.execute(
+                    'insert into replays (replay_id, map, status, playlist_id, duration, season, min_rank, max_rank, team_stats_orange, team_stats_blue) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (replay_id, map_name, status, playlist_id, duration, season, min_rank, max_rank, team_stats_orange, team_stats_blue))
+
+            except sqlite3.Error as error:
+                print("Failed to insert replay data:", error)
+
+            try:
+                c.executemany(
+                    'insert into stats (fk_player_id, fk_replay_id, team, stats) values (?, ?, ?, ?)', player_stats)
+            except sqlite3.Error as error:
+                print("Failed to insert player stats data:", error)
+
+            # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
+            sleep(0.1)
+
+        else:
             print(
-                f'Could not find key {err} in json_data, replay_id: {replay_id}')
-
-        # Get the team stats
-        team_stats_blue = get_team_stats(json_data['blue'])
-        team_stats_orange = get_team_stats(json_data['orange'])
-
-        # Extract the players from the data
-        players = get_player_name_and_id(
-            json_data['blue'], json_data['orange'])
-
-        player_stats = get_player_stats(
-            replay_id, json_data['blue'], json_data['orange'])
-
-        try:
-            c.executemany(
-                'insert into Players (player_id, player_name) Values (?, ?)', players)
-
-        except sqlite3.Error as error:
-            print("Failed to insert player data:", error)
-        try:
-            # Try to insert replay data
-            c.execute(
-                'insert into replays (replay_id, map, status, playlist_id, duration, season, min_rank, max_rank, team_stats_orange, team_stats_blue) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (replay_id, map_name, status, playlist_id, duration, season, min_rank, max_rank, team_stats_orange, team_stats_blue))
-
-        except sqlite3.Error as error:
-            print("Failed to insert replay data:", error)
-
-        try:
-            c.executemany(
-                'insert into stats (fk_player_id, fk_replay_id, team, stats) values (?, ?, ?, ?)', player_stats)
-        except sqlite3.Error as error:
-            print("Failed to insert player stats data:", error)
-
-        # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
-        sleep(0.1)
-
-        # Commit the new data and close the database connection AFTER finished the loop.
-
+                f'Request of {replay_id} was not succesful, status: {r.status_code}')
 else:
     print('Status code was not 200, please check your api key.')
 
