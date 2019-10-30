@@ -14,9 +14,6 @@ from functions import (download_replays, get_player_name_and_id,
 threads = 4
 replay_queue = Queue()
 
-# Create a list for the players
-players = list()
-
 # List of all ingame ranks
 ranks = [['unranked', 'unranked'],
          ['bronze-1', 'bronze-3'],
