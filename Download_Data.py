@@ -69,9 +69,11 @@ if(r.status_code == 200):
             # Construct an url for download the replay list for a mode and a rank
             rank_mode_url = f'{replay_list_url}?playlist={mode}&min-rank={rank[0]}&max-rank={rank[1]}&count={number_of_games}&season={season_of_games}'
 
-            replay_data.append(json.loads(requests.get(
-                rank_mode_url, headers=header).text))
-
+            try:
+                replay_data.append(json.loads(requests.get(
+                    rank_mode_url, headers=header).text))
+            except ValueError as val_err:
+                print(f'Json decoding error when parsing {rank_mode_url}')
     # Extracting the replay ids
     for x in replay_data:
         for y in x['list']:
