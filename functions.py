@@ -15,7 +15,7 @@ def get_player_name_and_id(blue_team, orange_team):
         for player in orange_team['players']:
             player_name_id_list.append(
                 (int(player['id']['id']), player['name']))
-    except ValueError:
+    except (ValueError, KeyError):
         pass
 
     return player_name_id_list
@@ -57,7 +57,6 @@ def download_replays(i, q, header, c):
         # Example: https://ballchasing.com/replay/7509cebd-e78e-4214-b92f-024fd39171f5
 
         # API URL for making requests
-        print(f'Thread {i}: Getting the next replay')
         replay = q.get()
         api_url = f'https://ballchasing.com/api/replays/{replay}'
         print(f'Thread {i}: Getting replay {replay}')
