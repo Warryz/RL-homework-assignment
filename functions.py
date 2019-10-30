@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 import requests
 import sqlite3
+import logging
 
 
 def get_player_name_and_id(blue_team, orange_team):
@@ -15,8 +16,8 @@ def get_player_name_and_id(blue_team, orange_team):
         for player in orange_team['players']:
             player_name_id_list.append(
                 (int(player['id']['id']), player['name']))
-    except (ValueError, KeyError):
-        pass
+    except (ValueError, KeyError) as err:
+        logging.error(f'Error when getting player names or ids: {err}')
 
     return player_name_id_list
 
@@ -59,14 +60,14 @@ def download_replays(i, q, header, c):
         # API URL for making requests
         replay = q.get()
         api_url = f'https://ballchasing.com/api/replays/{replay}'
-        print(f'Thread {i}: Getting replay {replay}')
+        logging.debug(f'Thread {i}: Getting replay {replay}')
 
         # Make the first request.
         r = requests.get(api_url, headers=header)
         try:
             json_data = json.loads(r.text)
         except ValueError as json_err:
-            print(
+            logging.error(
                 f'Json decoding error when decoding replay {replay}: {json_err}')
 
         # Basic variables like mapname, status, playlist id, duration, season
@@ -80,7 +81,7 @@ def download_replays(i, q, header, c):
             min_rank = json_data['min_rank']['name']
             max_rank = json_data['max_rank']['name']
         except KeyError as key_err:
-            print(f'Thread {i}: Error when accessing a json key: {key_err}')
+            logging.error(f'Thread {i}: Error when accessing a json key: {key_err}')
 
         # Get the team stats
         team_stats_blue = get_team_stats(json_data['blue'])
@@ -98,25 +99,26 @@ def download_replays(i, q, header, c):
                 'insert into Players (player_id, player_name) Values (?, ?)', players)
 
         except sqlite3.Error as error:
-            print("Failed to insert player data:", error)
+            logging.error(f'Failed to insert player data: {error}')
         try:
             # Try to insert replay data
             c.execute(
                 'insert into replays (replay_id, map, status, playlist_id, duration, season, min_rank, max_rank, team_stats_orange, team_stats_blue) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (replay, map_name, status, playlist_id, duration, season, min_rank, max_rank, team_stats_orange, team_stats_blue))
 
         except sqlite3.Error as error:
-            print("Failed to insert replay data:", error)
+            logging.error(f'Failed to insert replay {replay} data: {error}', error)
 
         try:
             c.executemany(
                 'insert into stats (fk_player_id, fk_replay_id, team, stats) values (?, ?, ?, ?)', player_stats)
         except sqlite3.Error as error:
-            print("Failed to insert player stats data:", error)
+            logging.error(f'Failed to insert player stats data: {error}')
 
         # Make the script sleep for 100ms as we're only allowed to do 10 calls per sec
         query_end = datetime.now()
-        print(f'Thread {i}: {query_end-query_start}, {r.status_code}')
+        logging.error(f'Thread {i}: {query_end-query_start}, {r.status_code}')
 
+        logging.info(f'Finished replay id {replay}')
         q.task_done()
 
 
