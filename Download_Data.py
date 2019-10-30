@@ -4,11 +4,15 @@ from datetime import datetime
 from queue import Queue
 from threading import Thread
 from time import sleep
+import logging
 
 import requests
 
 from functions import (download_replays, get_player_name_and_id,
                        get_player_stats, get_team_stats)
+
+# Configure the logging
+logging.basicConfig(level=logging.ERROR, filename='skript.log', format='[%(levelname)s]: %(asctime)s - %(message)s')
 
 # Number of threads
 threads = 4
@@ -44,6 +48,7 @@ header = {'Authorization': 'abc123'}
 
 # Start the time measurement here
 start = datetime.now()
+logging.info(f'Started script at {start}.')
 
 # Create a database connection and a cursor for executing commands.
 conn = sqlite3.connect('rl.db', check_same_thread=False)
@@ -70,12 +75,13 @@ if(r.status_code == 200):
                 replay_data.append(json.loads(requests.get(
                     rank_mode_url, headers=header).text))
             except ValueError as val_err:
-                print(f'Json decoding error when parsing {rank_mode_url}')
+                logging.critical(f'Json decoding error when parsing {rank_mode_url}')
     # Extracting the replay ids
     for x in replay_data:
         for y in x['list']:
             # Construct the replay URL and print it, yeah!
             replay_queue.put(y['id'])
+            logging.debug(f"Added {y['id']} to the queue.")
 
     # Starting the threads
     for i in range(threads):
@@ -83,22 +89,25 @@ if(r.status_code == 200):
                         args=(i, replay_queue, header, c,))
         worker.setDaemon(True)
         worker.start()
+        logging.debug(f'Started thread {i}')
 
     # Now wait for the queue to be empty, indicating that we have
     # processed all of the downloads.
-    print('*** Main thread waiting')
+    logging.info('*** Main thread waiting')
     replay_queue.join()
-    print('*** Done')
+    logging.info('*** Done')
 
 else:
-    print('Status code was not 200, please check your api key.')
+    logging.critical('Status code was not 200, please check your api key.')
 
 # Close the database connection
 conn.commit()
 conn.close()
 
+logging.info('Database connection closed.')
+
 # Time of End
 end = datetime.now()
 
 # Print notification when script has finished
-print(f'Script has finished! Time: {end-start}')
+logging.info(f'Script has finished! Time: {end-start}')
