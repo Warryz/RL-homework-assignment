@@ -75,7 +75,7 @@ if(r.status_code == 200):
                 replay_data.append(json.loads(requests.get(
                     rank_mode_url, headers=header).text))
             except ValueError as val_err:
-                logging.critical(f'Json decoding error when parsing {rank_mode_url}')
+                logging.critical(f'Json decoding error when parsing {rank_mode_url}', exc_info=True)
     # Extracting the replay ids
     for x in replay_data:
         for y in x['list']:
