@@ -69,6 +69,9 @@ def download_replays(i, q, header, c):
         except ValueError as json_err:
             logging.exception(
                 f'Json decoding error when decoding replay {replay}: {json_err}')
+        except requests.exceptions.ConnectionError as con_error:
+            logging.exception(
+                f'Connection has failed when getting replay {replay}: {con_error}')
 
         # Basic variables like mapname, status, playlist id, duration, season
         # min and max rank
@@ -81,7 +84,8 @@ def download_replays(i, q, header, c):
             min_rank = json_data['min_rank']['name']
             max_rank = json_data['max_rank']['name']
         except KeyError as key_err:
-            logging.exception(f'Thread {i}: Error when accessing a json key: {key_err}')
+            logging.exception(
+                f'Thread {i}: Error when accessing a json key: {key_err}')
 
         # Get the team stats
         team_stats_blue = get_team_stats(json_data['blue'])
@@ -106,7 +110,8 @@ def download_replays(i, q, header, c):
                 'insert into replays (replay_id, map, status, playlist_id, duration, season, min_rank, max_rank, team_stats_orange, team_stats_blue) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (replay, map_name, status, playlist_id, duration, season, min_rank, max_rank, team_stats_orange, team_stats_blue))
 
         except sqlite3.Error as error:
-            logging.exception(f'Failed to insert replay {replay} data: {error}', error)
+            logging.exception(
+                f'Failed to insert replay {replay} data: {error}')
 
         try:
             c.executemany(
